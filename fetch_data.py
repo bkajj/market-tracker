@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from config import BASE_DIR
 
 load_dotenv()
 
@@ -25,6 +26,6 @@ filtered_params = {k: v for k, v in params.items() if v is not None and v != ''}
 url = f'https://api.stockdata.org/v1/data/intraday'
 r = requests.get(url, params=filtered_params)
 
-with open('data.json', 'w') as f:
+with open(BASE_DIR/'data/data.json', 'w') as f:
     json.dump(r.json(), f, indent=2)
-    print("Saved to file data.json")
+    print("Saved to file data/data.json")
