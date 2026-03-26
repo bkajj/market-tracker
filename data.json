@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "date_from": "2026-03-18",
+    "date_to": "2026-03-18",
+    "max_period_days": 180
+  },
+  "data": [
+    {
+      "date": "2026-03-18T15:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 249.91,
+        "high": 250.53,
+        "low": 249,
+        "close": 249.93,
+        "volume": 208654,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T14:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 251.37,
+        "high": 251.66,
+        "low": 249.87,
+        "close": 249.88,
+        "volume": 152178,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T13:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 250.98,
+        "high": 251.41,
+        "low": 250.4,
+        "close": 251.36,
+        "volume": 125648,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T12:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 251.77,
+        "high": 251.99,
+        "low": 250.7,
+        "close": 251.01,
+        "volume": 136223,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T11:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 252.52,
+        "high": 253.06,
+        "low": 251.5,
+        "close": 251.76,
+        "volume": 129290,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T10:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 253.44,
+        "high": 253.8,
+        "low": 252.09,
+        "close": 252.56,
+        "volume": 133724,
+        "is_extended_hours": false
+      }
+    },
+    {
+      "date": "2026-03-18T09:00:00.000Z",
+      "ticker": "AAPL",
+      "data": {
+        "open": 252.61,
+        "high": 254.92,
+        "low": 251.39,
+        "close": 253.37,
+        "volume": 93440,
+        "is_extended_hours": false
+      }
+    }
+  ]
+}
