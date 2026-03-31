@@ -11,8 +11,12 @@ import datetime as dt
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='pipeline.log', level=logging.INFO)
-    #todo: add timestamp to logs
+    logging.basicConfig(
+        level=logging.INFO, 
+        handlers=[logging.FileHandler('pipeline.log'), logging.StreamHandler()],
+        format='%(asctime)s %(levelname)s: %(message)s',
+        datefmt='%Y-%m-%d %I:%M:%S')
+    
     try:
         logger.info("Starting pipeline...")
         engine, Session = create_engine_and_session()
@@ -21,8 +25,8 @@ if __name__ == "__main__":
         init_db(engine)
 
         logger.info("Fetching data from API")
-        yesterday = dt.date.today() - dt.timedelta(days=4)
-        raw_data = fetch_data_from_api('AAPL', 'minute', str(yesterday), str(yesterday))
+        first_available_day = dt.date.today() - dt.timedelta(days=4)
+        raw_data = fetch_data_from_api('AAPL', 'minute', str(first_available_day), str(first_available_day))
 
         logger.info("Saving data to database")
         load_to_db(raw_data, Session)

@@ -14,8 +14,6 @@ class FetchAPIException(Exception):
     def __init__(self, code, message):
         super().__init__(message)
         self.code = code
-    
-
 
 def fetch_data_from_api(symbols, interval, date_from, date_to):
     params = {
@@ -38,7 +36,7 @@ def fetch_data_from_api(symbols, interval, date_from, date_to):
     filename = BASE_DIR / 'data' / f'data_{timestamp}.json'
     with open(filename, 'w') as f:
         json.dump(json_data, f, indent=2)
-        print(f'Saved to file {filename}')
+        logger.info(f'Saved to file {filename}')
 
     return json_data
 
