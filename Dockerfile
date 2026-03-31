@@ -5,7 +5,8 @@ WORKDIR app/
 COPY . .
 
 RUN pip install -r requirements.txt
-# RUN apt-get update
-# RUN apt-get install cron
+RUN apt-get update && apt-get install -y cron
 
-CMD [ "python", "-m", "run_pipeline" ]
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT [ "/app/entrypoint.sh" ]

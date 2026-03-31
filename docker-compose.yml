@@ -16,6 +16,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - CONNECTION_STRING=postgresql+psycopg2://admin:admin@db:5432/market-db
+      - STOCKDATA_API_TOKEN=${STOCKDATA_API_TOKEN}
     depends_on:
       - db
 
