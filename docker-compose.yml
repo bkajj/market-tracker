@@ -11,5 +11,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  pipeline:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - CONNECTION_STRING=postgresql+psycopg2://admin:admin@db:5432/market-db
+    depends_on:
+      - db
+
 volumes:
   pgdata:

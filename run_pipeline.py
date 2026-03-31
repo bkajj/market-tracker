@@ -21,8 +21,8 @@ if __name__ == "__main__":
         init_db(engine)
 
         logger.info("Fetching data from API")
-        yesterday = dt.date.today() - dt.timedelta(days=1)
-        raw_data = fetch_data_from_api('AAPL', 'minute', yesterday, yesterday)
+        yesterday = dt.date.today() - dt.timedelta(days=4)
+        raw_data = fetch_data_from_api('AAPL', 'minute', str(yesterday), str(yesterday))
 
         logger.info("Saving data to database")
         load_to_db(raw_data, Session)
