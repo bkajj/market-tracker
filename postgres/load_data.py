@@ -13,20 +13,25 @@ def load_from_file(filename=BASE_DIR/'data/data.json'):
 
 def load_to_db(raw, Session):
     records = []
-    
-    meta = raw['meta']
-    data = raw['data']
-    for d in data:
-        records.append({
-            'ticker': d['ticker'],
-            'timestamp': d['date'],
-            'open': d['data']['open'],
-            'high': d['data']['high'],
-            'low': d['data']['low'],
-            'close': d['data']['close'],
-            'volume': d['data']['volume'],
-            'ext_hours': d['data']['is_extended_hours'],
-        })
+
+    for ticker_data in raw:
+        meta = ticker_data['meta']
+        data = ticker_data['data']
+        for d in data:
+            records.append({
+                'ticker': d['ticker'],
+                'timestamp': d['date'],
+                'open': d['data']['open'],
+                'high': d['data']['high'],
+                'low': d['data']['low'],
+                'close': d['data']['close'],
+                'volume': d['data']['volume'],
+                'ext_hours': d['data']['is_extended_hours'],
+            })
+
+    if len(records) == 0:
+        logger.warning('No data fetched')
+        return
 
     with Session() as session:
         count_records_stmt = select(func.count("*")).select_from(IntradayPrice)
@@ -43,5 +48,6 @@ def load_to_db(raw, Session):
 
 if __name__ == "__main__":
     e, s = create_engine_and_session()
-    d = load_from_file()
+    d = []
+    d.append(load_from_file())
     load_to_db(d, s)

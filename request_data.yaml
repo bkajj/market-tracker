@@ -1,0 +1,11 @@
+#note the stockdata API limitations
+
+tickers:
+  - AAPL
+  - TSLA
+  - MSFT
+interval: minute #minute, hour
+date: 
+  mode: range #latest, range
+  from: 2026-03-20
+  to: 2026-03-22

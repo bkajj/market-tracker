@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from fetch_data import fetch_data_from_api, FetchAPIException
 import logging
 import datetime as dt
-
+import yaml
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -18,15 +18,28 @@ if __name__ == "__main__":
         datefmt='%Y-%m-%d %I:%M:%S')
     
     try:
+        raw_data = []
+
         logger.info("Starting pipeline...")
         engine, Session = create_engine_and_session()
 
         logger.info("Initializing database")
         init_db(engine)
 
-        logger.info("Fetching data from API")
-        first_available_day = dt.date.today() - dt.timedelta(days=4)
-        raw_data = fetch_data_from_api('AAPL', 'minute', str(first_available_day), str(first_available_day))
+        logger.info("Parsing YAML file")
+        with open('request_data.yaml') as f:
+            request_data = yaml.safe_load(f)
+            interval = request_data['interval']
+
+            if request_data['date']['mode'] == 'latest':
+                date_from = date_to = str(dt.date.today() - dt.timedelta(days=4))
+            elif request_data['date']['mode'] == 'range':
+                date_from = request_data['date']['from'] 
+                date_to = request_data['date']['to']
+
+            for ticker in request_data['tickers']:
+                logger.info(f"Fetching data from API for ticker {ticker}")
+                raw_data.append(fetch_data_from_api(ticker, interval, date_from, date_to))
 
         logger.info("Saving data to database")
         load_to_db(raw_data, Session)
@@ -41,6 +54,10 @@ if __name__ == "__main__":
         logger.error(f"Couldn't decode JSON file {e.doc}", exc_info=True)
     except FetchAPIException as e:
         logger.error(f"API Error {e.code}: {str(e)}", exc_info=True)
+    except yaml.YAMLError:
+        logger.error(f"YAML parsing error", exc_info=True)
+    except KeyError as e:
+        logger.error(f'Invalid index {str(e)}', exc_info=True)
     except Exception as e:
         logger.error(e, exc_info=True)
 
