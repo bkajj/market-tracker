@@ -10,6 +10,10 @@ import datetime as dt
 import yaml
 logger = logging.getLogger(__name__)
 
+# TODO: add option to disable cron scheduling
+# TODO: clean project structure - add src, docker, sql, etc...
+# TODO: create aggregations in sql (and then in pandas?)
+
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO, 
