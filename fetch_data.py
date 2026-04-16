@@ -7,7 +7,6 @@ from config import BASE_DIR
 import logging
 logger = logging.getLogger(__name__)
 
-
 load_dotenv()
 
 class FetchAPIException(Exception):

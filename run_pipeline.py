@@ -36,7 +36,8 @@ if __name__ == "__main__":
             interval = request_data['interval']
 
             if request_data['date']['mode'] == 'latest':
-                date_from = date_to = str(dt.date.today() - dt.timedelta(days=4))
+                #TODO: it should check for nearset workday
+                date_from = date_to = str(dt.date.today() - dt.timedelta(days=6))
             elif request_data['date']['mode'] == 'range':
                 date_from = request_data['date']['from'] 
                 date_to = request_data['date']['to']
@@ -46,7 +47,7 @@ if __name__ == "__main__":
                 raw_data.append(fetch_data_from_api(ticker, interval, date_from, date_to))
 
         logger.info("Saving data to database")
-        load_to_db(raw_data, Session)
+        load_to_db(raw_data, interval, Session)
 
         logger.info("Pipeline finished successfully:)")
 

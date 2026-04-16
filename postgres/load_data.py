@@ -2,16 +2,22 @@ from config import BASE_DIR
 from .db_models import IntradayPrice
 from .db import create_engine_and_session
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 import json
 import logging
+import pandas as pd
 logger = logging.getLogger(__name__)
 
+# def find_missing_data_in_db(tickers, engine):
+#     df = pd.read_sql(text('SELECT ticker, timestamp FROM intraday_prices ORDER BY ticker, timestamp'), engine)
+#     #df = df.groupby(['ticker', df['timestamp'].dt.date]).count()
+#     print(df)
+    
 def load_from_file(filename=BASE_DIR/'data/data.json'):
     with open(filename) as f:
         return json.load(f)
 
-def load_to_db(raw, Session):
+def load_to_db(raw, interval, Session):
     records = []
 
     for ticker_data in raw:
@@ -21,6 +27,7 @@ def load_to_db(raw, Session):
             records.append({
                 'ticker': d['ticker'],
                 'timestamp': d['date'],
+                'interval': interval,
                 'open': d['data']['open'],
                 'high': d['data']['high'],
                 'low': d['data']['low'],
@@ -38,7 +45,7 @@ def load_to_db(raw, Session):
         count_before = session.execute(count_records_stmt).scalar()
 
         insert_stmt = insert(IntradayPrice).values(records)
-        insert_stmt = insert_stmt.on_conflict_do_nothing(index_elements=['ticker', 'timestamp'])
+        insert_stmt = insert_stmt.on_conflict_do_nothing(index_elements=['ticker', 'timestamp', 'interval'])
         session.execute(insert_stmt)
         session.commit()
 
@@ -48,6 +55,9 @@ def load_to_db(raw, Session):
 
 if __name__ == "__main__":
     e, s = create_engine_and_session()
+    
+    # find_missing_data_in_db('AAPL', e)
+    
     d = []
     d.append(load_from_file())
     load_to_db(d, s)
