@@ -15,11 +15,6 @@ logger = logging.getLogger(__name__)
 # TODO: create aggregations in sql (and then in pandas?)
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO, 
-        handlers=[logging.FileHandler('pipeline.log'), logging.StreamHandler()],
-        format='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%Y-%m-%d %I:%M:%S')
     
     try:
         raw_data = []
@@ -37,7 +32,7 @@ if __name__ == "__main__":
 
             if request_data['date']['mode'] == 'latest':
                 #TODO: it should check for nearset workday
-                date_from = date_to = str(dt.date.today() - dt.timedelta(days=6))
+                date_from = date_to = str(dt.date.today() - dt.timedelta(days=4))
             elif request_data['date']['mode'] == 'range':
                 date_from = request_data['date']['from'] 
                 date_to = request_data['date']['to']

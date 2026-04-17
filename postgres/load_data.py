@@ -2,16 +2,11 @@ from config import BASE_DIR
 from .db_models import IntradayPrice
 from .db import create_engine_and_session
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func
 import json
 import logging
-import pandas as pd
-logger = logging.getLogger(__name__)
 
-# def find_missing_data_in_db(tickers, engine):
-#     df = pd.read_sql(text('SELECT ticker, timestamp FROM intraday_prices ORDER BY ticker, timestamp'), engine)
-#     #df = df.groupby(['ticker', df['timestamp'].dt.date]).count()
-#     print(df)
+logger = logging.getLogger(__name__)   
     
 def load_from_file(filename=BASE_DIR/'data/data.json'):
     with open(filename) as f:
@@ -55,9 +50,6 @@ def load_to_db(raw, interval, Session):
 
 if __name__ == "__main__":
     e, s = create_engine_and_session()
-    
-    # find_missing_data_in_db('AAPL', e)
-    
     d = []
     d.append(load_from_file())
     load_to_db(d, s)
