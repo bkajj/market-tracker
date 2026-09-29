@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from config import BASE_DIR
+from market_tracker.config import BASE_DIR
 import logging
 logger = logging.getLogger(__name__)
 

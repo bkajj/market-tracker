@@ -1,10 +1,10 @@
-from postgres.db import create_engine_and_session
-from postgres.db_init import init_db
-from postgres.load_data import load_to_db
+from market_tracker.db.engine import create_engine_and_session
+from market_tracker.db.schema import init_db
+from market_tracker.load import load_to_db
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from json import JSONDecodeError
-from fetch_data import fetch_data_from_api, FetchAPIException
+from market_tracker.fetch import fetch_data_from_api, FetchAPIException
 import logging
 import datetime as dt
 import yaml

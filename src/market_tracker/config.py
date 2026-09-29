@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 # must import config for logging to work
 logging.basicConfig(

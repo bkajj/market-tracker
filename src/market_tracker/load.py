@@ -1,6 +1,6 @@
-from config import BASE_DIR
-from .db_models import IntradayPrice
-from .db import create_engine_and_session
+from market_tracker.config import BASE_DIR
+from market_tracker.db.models import IntradayPrice
+from market_tracker.db.engine import create_engine_and_session
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, func
 import json
