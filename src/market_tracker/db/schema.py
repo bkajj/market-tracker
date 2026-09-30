@@ -1,5 +1,5 @@
-from .db_models import Base
-from .db import create_engine_and_session
+from market_tracker.db.models import Base
+from market_tracker.db.engine import create_engine_and_session
 
 def init_db(engine):
     Base.metadata.create_all(engine)

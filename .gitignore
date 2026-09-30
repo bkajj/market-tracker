@@ -4,3 +4,8 @@ data/
 *.log
 venv/
 .vscode/
+*.egg-info/
+
+#airflow
+logs/
+config/

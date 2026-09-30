@@ -1,0 +1,5 @@
+#note the stockdata API limitations
+
+tickers:
+  - AAPL
+interval: minute #minute, hour
