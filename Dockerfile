@@ -1,12 +1,4 @@
-FROM python:3.12-slim
+FROM apache/airflow:3.3.2
 
-WORKDIR app/
-
-COPY . .
-
-RUN pip install -r requirements.txt
-RUN apt-get update && apt-get install -y cron
-
-RUN chmod +x entrypoint.sh
-
-ENTRYPOINT [ "/app/entrypoint.sh" ]
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt

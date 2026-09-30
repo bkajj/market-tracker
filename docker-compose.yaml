@@ -49,8 +49,8 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider distributions you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.3.2}
-  # build: .
+  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.3.2}
+  build: .
   env_file:
     - ${ENV_FILE_PATH:-.env}
   environment:
@@ -71,7 +71,8 @@ x-airflow-common:
     # App variables
     CONNECTION_STRING: postgresql+psycopg2://admin:admin@db:5432/market-db
     STOCKDATA_API_TOKEN: ${STOCKDATA_API_TOKEN}
-
+    PYTHONPATH: /opt/airflow/src
+    DATA_DIR: /opt/airflow/data
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -87,6 +88,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/src:/opt/airflow/src
+    - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
