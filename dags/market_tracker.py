@@ -16,9 +16,6 @@ CONFIG = _load_config()
 TICKERS = CONFIG["tickers"]
 INTERVAL = CONFIG["interval"]
 
-def _target_day(logical_date: datetime) -> date:
-    return logical_date.date() - timedelta(days=API_DELAY_DAYS)
-
 @dag(
     dag_id="market_tracker",
     schedule="0 22 * * *",  # everyday at 22:00 UTC, check_trading_day skips closed days 
@@ -35,9 +32,9 @@ def market_tracker():
 
     @task.short_circuit
     def check_trading_day(logical_date=None) -> bool:
-        from market_tracker.trading_calendar import is_trading_day
+        from market_tracker.trading_calendar import is_trading_day, target_day
 
-        day = _target_day(logical_date)
+        day = target_day(logical_date, API_DELAY_DAYS)
         print(f"Target day: {day}")
         return is_trading_day(day)
 
@@ -54,11 +51,12 @@ def market_tracker():
     def fetch(ticker: str, logical_date=None) -> str:
         import os
         from market_tracker.fetch import fetch_to_file
+        from market_tracker.trading_calendar import target_day
 
         path = fetch_to_file(
             ticker=ticker, 
             interval=INTERVAL, 
-            date=_target_day(logical_date),
+            date=target_day(logical_date, API_DELAY_DAYS),
             data_path=os.environ["DATA_DIR"],
         )
         return str(path)
