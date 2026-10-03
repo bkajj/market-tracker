@@ -1,5 +1,7 @@
 # market-tracker
 
+![CI](https://github.com/bkajj/market-tracker/actions/workflows/ci.yml/badge.svg)
+
 > **Status:** Work in progress - actively being developed.
 
 Batch pipeline that ingests intraday OHLCV stock data from the [stockdata.org](https://www.stockdata.org/) API into PostgreSQL, orchestrated with Apache Airflow 3 and running in Docker Compose.
@@ -22,7 +24,7 @@ flowchart LR
 
 ## Stack
 
-Python · Apache Airflow 3 · PostgreSQL · SQLAlchemy · Docker  
+Python · Apache Airflow 3 · PostgreSQL · SQLAlchemy · Docker · pytest · GitHub Actions
 
 ## How it works
 
@@ -43,6 +45,7 @@ A SQL view `ohlcv` aggregates intraday rows into daily bars.
 - **Raw data layer** - API responses are kept on disk in a Hive-style partitioned layout
 - **Failure isolation** - each ticker is processed and retried independently
 - **Error handling** - API errors, timeouts and missing data fail the task and trigger retries
+- **Tested** - unit tests and linting run on every push
 
 ## Setup
 
@@ -103,40 +106,57 @@ docker compose exec airflow-scheduler airflow backfill create --dag-id market_tr
 python -m venv venv
 venv\Scripts\activate        # Windows
 # source venv/bin/activate   # Linux/Mac
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 pip install -e .
 ```
+
+## Testing
+
+```bash
+pytest
+ruff check .
+ruff format --check .
+```
+
+Unit tests cover the API client (with a mocked API), record mapping and the trading calendar. They need no database or network access. The same checks run on every push and pull request via GitHub Actions.
 
 ## Project structure
 
 ```
 .
+├── .github/workflows/
+│   └── ci.yml                  # lint and tests on every push
 ├── dags/
 │   ├── market_tracker.py       # DAG definition
 │   └── pipeline_config.yaml    # tickers and interval
 ├── src/market_tracker/
 │   ├── fetch.py                # API client, writes raw files
 │   ├── load.py                 # loads raw files into PostgreSQL
-│   ├── trading_calendar.py     # NYSE trading day check
+│   ├── trading_calendar.py     # NYSE trading day check, target day
 │   ├── config.py
 │   └── db/
 │       ├── engine.py
 │       ├── models.py
 │       └── schema.py
+├── tests/
+│   ├── test_fetch.py
+│   ├── test_load.py
+│   └── test_trading_calendar.py
 ├── sql/
 │   └── create_views.sql        # daily OHLCV view
 ├── Dockerfile
 ├── docker-compose.yaml
 ├── pyproject.toml
-└── requirements.txt
+├── requirements.txt            # runtime dependencies
+└── requirements-dev.txt        # runtime + pytest, ruff
 ```
 
 ## Roadmap
 
-- Tests and CI (pytest, GitHub Actions)
 - Update existing rows on conflict
 - Timezone-aware timestamps
 - Automatic creation of the `ohlcv` view
 - Data quality checks
+- Integration tests against PostgreSQL
 - Transformations with dbt
 - Historical data processing with Spark
