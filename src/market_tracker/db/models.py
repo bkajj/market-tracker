@@ -1,13 +1,23 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, UniqueConstraint, CheckConstraint
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class IntradayPrice(Base):
-    __tablename__ = 'intraday_prices'
+    __tablename__ = "intraday_prices"
 
     __table_args__ = (
-        UniqueConstraint('ticker', 'timestamp', 'interval'),
+        UniqueConstraint("ticker", "timestamp", "interval"),
         CheckConstraint("interval in ('minute', 'hour')"),
     )
 
