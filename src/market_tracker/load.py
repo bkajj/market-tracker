@@ -7,6 +7,19 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)   
 
+def _to_record(d, interval):
+    return {
+        'ticker': d['ticker'],
+        'timestamp': d['date'],
+        'interval': interval,
+        'open': d['data']['open'],
+        'high': d['data']['high'],
+        'low': d['data']['low'],
+        'close': d['data']['close'],
+        'volume': d['data']['volume'],
+        'ext_hours': d['data']['is_extended_hours'],
+    }
+
 def load_to_db(path: Path | str, interval: str, Session: Session):
     records = []
 
@@ -16,17 +29,7 @@ def load_to_db(path: Path | str, interval: str, Session: Session):
     meta = raw['meta']
     data = raw['data']
     for d in data:
-        records.append({
-            'ticker': d['ticker'],
-            'timestamp': d['date'],
-            'interval': interval,
-            'open': d['data']['open'],
-            'high': d['data']['high'],
-            'low': d['data']['low'],
-            'close': d['data']['close'],
-            'volume': d['data']['volume'],
-            'ext_hours': d['data']['is_extended_hours'],
-        })
+        records.append(_to_record(d, interval))
 
     if len(records) == 0:
         raise RuntimeError("No data fetched")
