@@ -4,7 +4,8 @@ from datetime import date
 import pytest
 import requests
 
-from market_tracker.fetch import fetch_to_file, FetchAPIException
+from market_tracker.fetch import FetchAPIException, fetch_to_file
+
 
 class FakeResponse:
     def __init__(self, payload, status_code=200):
@@ -18,14 +19,20 @@ class FakeResponse:
         if self.status_code >= 400:
             raise requests.HTTPError(f"status {self.status_code}")
 
+
 @pytest.fixture
 def api_token(monkeypatch):
     monkeypatch.setenv("STOCKDATA_API_TOKEN", "test-token")
 
+
 @pytest.fixture
 def mock_api(monkeypatch):
     def _mock(payload, status_code=200):
-        monkeypatch.setattr("market_tracker.fetch.requests.get", lambda *args, **kwargs: FakeResponse(payload, status_code))
+        monkeypatch.setattr(
+            "market_tracker.fetch.requests.get",
+            lambda *args, **kwargs: FakeResponse(payload, status_code),
+        )
+
     return _mock
 
 
@@ -35,7 +42,14 @@ def test_fetch_to_file_writes_partitioned_file(tmp_path, api_token, mock_api):
 
     path = fetch_to_file("AAPL", "hour", date(2026, 9, 25), tmp_path)
 
-    expected = tmp_path / "raw" / "intraday" / "interval=hour" / "ticker=AAPL" / "date=2026-09-25.json"
+    expected = (
+        tmp_path
+        / "raw"
+        / "intraday"
+        / "interval=hour"
+        / "ticker=AAPL"
+        / "date=2026-09-25.json"
+    )
     assert path == expected
     assert json.loads(path.read_text()) == payload
 
@@ -60,7 +74,7 @@ def test_fetch_to_file_no_api_token(tmp_path, monkeypatch):
 
 
 def test_fetch_to_file_idempotent(tmp_path, api_token, mock_api):
-    payload = {"meta": {"date_from": "2026-09-25"}, "data":[{"ticker": "AAPL"}]}
+    payload = {"meta": {"date_from": "2026-09-25"}, "data": [{"ticker": "AAPL"}]}
     mock_api(payload)
 
     fetch_to_file("AAPL", "hour", date(2026, 9, 25), tmp_path)
