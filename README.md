@@ -1,6 +1,6 @@
 # market-tracker
 
-![CI](https://github.com/bkajj/market-tracker/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/bkajj/market-tracker/actions/workflows/ci.yaml/badge.svg)
 
 > **Status:** Work in progress - actively being developed.
 
