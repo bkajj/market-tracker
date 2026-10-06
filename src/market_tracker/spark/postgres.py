@@ -2,6 +2,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from market_tracker.db.engine import get_connection_url
 from market_tracker.db.models import IntradayPrice
+from market_tracker.spark.transformations import add_daily_metrics, aggregate_daily
 
 
 def read_prices(spark: SparkSession) -> DataFrame:
@@ -25,6 +26,6 @@ if __name__ == "__main__":
 
     spark = get_spark()
     df = read_prices(spark)
-    df.printSchema()
-    df.show(5)
+    daily = aggregate_daily(df)
+    add_daily_metrics(daily).orderBy("ticker", "date").show()
     spark.stop()

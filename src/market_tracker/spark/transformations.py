@@ -1,4 +1,4 @@
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
 
@@ -14,4 +14,14 @@ def aggregate_daily(prices: DataFrame) -> DataFrame:
             F.max_by("close", "timestamp").alias("close"),
             F.sum("volume").alias("volume"),
         )
+    )
+
+
+def add_daily_metrics(daily: DataFrame) -> DataFrame:
+    window = Window.partitionBy("ticker").orderBy("date")
+    week_window = window.rowsBetween(-6, Window.currentRow)
+    return (
+        daily.withColumn("prev_close", F.lag("close").over(window))
+        .withColumn("daily_return", (F.col("close") - F.col("prev_close")) / F.col("prev_close"))
+        .withColumn("ma_7", F.avg("close").over(week_window))
     )
