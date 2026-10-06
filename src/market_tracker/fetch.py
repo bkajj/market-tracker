@@ -18,9 +18,7 @@ class FetchAPIException(Exception):
         self.code = code
 
 
-def fetch_to_file(
-    ticker: str, interval: str, date: datetime.date, data_path: Path | str
-):
+def fetch_to_file(ticker: str, interval: str, date: datetime.date, data_path: Path | str):
     token = os.getenv("STOCKDATA_API_TOKEN")
     if not token:
         raise RuntimeError("STOCKDATA_API_TOKEN is not set")
@@ -42,9 +40,7 @@ def fetch_to_file(
         raise
 
     if "error" in json_data:
-        raise FetchAPIException(
-            json_data["error"]["code"], json_data["error"]["message"]
-        )
+        raise FetchAPIException(json_data["error"]["code"], json_data["error"]["message"])
     r.raise_for_status()
 
     filename = (
