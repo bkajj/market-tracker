@@ -43,12 +43,7 @@ def test_fetch_to_file_writes_partitioned_file(tmp_path, api_token, mock_api):
     path = fetch_to_file("AAPL", "hour", date(2026, 9, 25), tmp_path)
 
     expected = (
-        tmp_path
-        / "raw"
-        / "intraday"
-        / "interval=hour"
-        / "ticker=AAPL"
-        / "date=2026-09-25.json"
+        tmp_path / "raw" / "intraday" / "interval=hour" / "ticker=AAPL" / "date=2026-09-25.json"
     )
     assert path == expected
     assert json.loads(path.read_text()) == payload

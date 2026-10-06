@@ -36,9 +36,7 @@ def test_is_trading_day(day, expected):
             date(2026, 9, 28),
             id="crosses_month_boundary",
         ),
-        pytest.param(
-            datetime(2026, 10, 2, 22, tzinfo=UTC), 0, date(2026, 10, 2), id="no_delay"
-        ),
+        pytest.param(datetime(2026, 10, 2, 22, tzinfo=UTC), 0, date(2026, 10, 2), id="no_delay"),
     ],
 )
 def test_target_day(logical_date, delay_days, expected):
