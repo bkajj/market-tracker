@@ -28,5 +28,11 @@ jobs:
       - name: Check formatting
         run: ruff format --check .
 
+      - name: Set up java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: test
         run: pytest -v
