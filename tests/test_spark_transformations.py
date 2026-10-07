@@ -73,21 +73,21 @@ MSFT_DAY_1_CANDLE = candle("MSFT", date(2026, 9, 1), 500.0, 510.0, 498.0, 509.0,
         pytest.param(MSFT_DAY_1, MSFT_DAY_1_CANDLE, id="msft_day_1"),
     ],
 )
-def test_aggregate_daily_single_day(spark, rows, expected):
+def test_aggregate_daily_builds_candle_from_intraday_bars(spark, rows, expected):
     result = aggregate_daily(make_intraday(spark, rows)).collect()
 
     assert len(result) == 1
     assert result[0].asDict() == expected
 
 
-def test_aggregate_daily_with_ext_hours(spark):
+def test_aggregate_daily_ignores_extended_hours(spark):
     result = aggregate_daily(make_intraday(spark, AAPL_DAY_1 + AAPL_EXT_HOURS)).collect()
 
     assert len(result) == 1
     assert result[0].asDict() == AAPL_DAY_1_CANDLE
 
 
-def test_aggregate_daily_combined(spark):
+def test_aggregate_daily_groups_by_ticker_and_date(spark):
     result = (
         aggregate_daily(make_intraday(spark, AAPL_DAY_1 + AAPL_DAY_2 + MSFT_DAY_1))
         .orderBy("ticker", "date")
@@ -119,7 +119,7 @@ EXPECTED_METRICS = [
 ]
 
 
-def test_add_daily_metrics(spark):
+def test_add_daily_metrics_computes_metrics_per_ticker(spark):
     result = (
         add_daily_metrics(make_daily(spark, DAILY_CLOSES))
         .select("ticker", "date", "close", "prev_close", "daily_return", "ma_7")
@@ -129,3 +129,18 @@ def test_add_daily_metrics(spark):
 
     for row, expected in zip(result, EXPECTED_METRICS, strict=True):
         assert row.asDict() == pytest.approx(expected)
+
+
+EIGHT_DAILY_CLOSES = [("AAPL", date(2026, 9, 1 + i), 10.0 * (i + 1)) for i in range(8)]
+
+
+def test_add_daily_metrics_ma_7_uses_last_seven_rows(spark):
+    result = (
+        add_daily_metrics(make_daily(spark, EIGHT_DAILY_CLOSES))
+        .select("ticker", "date", "close", "prev_close", "daily_return", "ma_7")
+        .orderBy("ticker", "date")
+        .collect()
+    )
+
+    assert result[-2].ma_7 == pytest.approx(40.0)
+    assert result[-1].ma_7 == pytest.approx(50.0)
