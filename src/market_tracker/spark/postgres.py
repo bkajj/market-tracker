@@ -1,23 +1,37 @@
 from pyspark.sql import DataFrame, SparkSession
 
 from market_tracker.db.engine import get_connection_url
-from market_tracker.db.models import IntradayPrice
+from market_tracker.db.models import DailyPrice, IntradayPrice
 from market_tracker.spark.transformations import add_daily_metrics, aggregate_daily
 
 
-def read_prices(spark: SparkSession) -> DataFrame:
+def _jdbc_options() -> dict[str, str]:
     url_data = get_connection_url()
+    return {
+        "url": f"jdbc:postgresql://{url_data.host}:{url_data.port}/{url_data.database}",
+        "user": url_data.username,
+        "password": url_data.password,
+        "driver": "org.postgresql.Driver",
+    }
+
+
+def read_prices(spark: SparkSession) -> DataFrame:
     return (
         spark.read.format("jdbc")
-        .option(
-            "url",
-            f"jdbc:postgresql://{url_data.host}:{url_data.port}/{url_data.database}",
-        )
+        .options(**_jdbc_options())
         .option("dbtable", IntradayPrice.__tablename__)
-        .option("user", url_data.username)
-        .option("password", url_data.password)
-        .option("driver", "org.postgresql.Driver")
         .load()
+    )
+
+
+def write_daily_prices(df: DataFrame) -> None:
+    (
+        df.write.format("jdbc")
+        .options(**_jdbc_options())
+        .option("dbtable", DailyPrice.__tablename__)
+        .option("truncate", "true")
+        .mode("overwrite")
+        .save()
     )
 
 
