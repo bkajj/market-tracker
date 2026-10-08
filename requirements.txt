@@ -5,4 +5,4 @@ python-dotenv
 PyYAML
 pandas
 exchange_calendars
-pyspark
+pyspark==4.2.0
