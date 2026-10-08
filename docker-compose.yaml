@@ -73,6 +73,9 @@ x-airflow-common:
     STOCKDATA_API_TOKEN: ${STOCKDATA_API_TOKEN}
     PYTHONPATH: /opt/airflow/src
     DATA_DIR: /opt/airflow/data
+
+    # Spark
+    AIRFLOW_CONN_SPARK_DEFAULT: spark://spark-master:7077
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -130,6 +133,24 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
+    restart: always
+    
+  spark-master:
+    image: apache/spark:4.2.0-java21-python3
+    hostname: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    ports:
+      - "8081:8080"
+    restart: always
+
+  spark-worker:
+    image: apache/spark:4.2.0-java21-python3
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      SPARK_WORKER_CORES: "2"
+      SPARK_WORKER_MEMORY: 1g
+    depends_on:
+      - spark-master
     restart: always
 
   redis:
@@ -217,6 +238,8 @@ services:
         condition: service_completed_successfully
       db:
         condition: service_healthy
+      spark-master:
+        condition: service_started
 
   airflow-triggerer:
     <<: *airflow-common

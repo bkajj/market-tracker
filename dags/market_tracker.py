@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pendulum
 import yaml
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.sdk import dag, task, task_group
 
 API_DELAY_DAYS = 4
@@ -74,12 +75,24 @@ def market_tracker():
         load_to_db(path=path, interval=INTERVAL, Session=Session)
         engine.dispose()
 
+    compute_daily_prices = SparkSubmitOperator(
+        task_id="compute_daily_prices",
+        application="/opt/airflow/src/market_tracker/spark/jobs/daily_prices.py",
+        conn_id="spark_default",
+        packages="org.postgresql:postgresql:42.7.13",
+    )
+
     @task_group
     def process_ticker(ticker: str):
         path = fetch(ticker)
         load(path)
 
-    check_trading_day() >> init_schema() >> process_ticker.expand(ticker=TICKERS)
+    (
+        check_trading_day()
+        >> init_schema()
+        >> process_ticker.expand(ticker=TICKERS)
+        >> compute_daily_prices
+    )
 
 
 market_tracker()
