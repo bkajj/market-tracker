@@ -16,6 +16,11 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 src = ["src"]
+extend-exclude = ["databricks/notebooks"]
+force-exclude = true
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.databricks.environment]
+environment_version = '6'
