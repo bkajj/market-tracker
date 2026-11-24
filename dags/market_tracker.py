@@ -97,15 +97,13 @@ def market_tracker():
     @task_group
     def process_ticker(ticker: str):
         path = fetch(ticker)
-        load(path)
-        upload_to_databricks(path)
+        loaded = load(path)
+        uploaded = upload_to_databricks(path)
 
-    (
-        check_trading_day()
-        >> init_schema()
-        >> process_ticker.expand(ticker=TICKERS)
-        >> [compute_daily_prices, databricks_medallion]
-    )
+        loaded >> compute_daily_prices
+        uploaded >> databricks_medallion
+
+    (check_trading_day() >> init_schema() >> process_ticker.expand(ticker=TICKERS))
 
 
 market_tracker()
