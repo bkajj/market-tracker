@@ -7,3 +7,5 @@ pandas
 exchange_calendars
 pyspark==4.2.0
 apache-airflow-providers-apache-spark
+apache-airflow-providers-databricks
+databricks-sdk
