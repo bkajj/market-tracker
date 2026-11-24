@@ -1,9 +1,11 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
 import pendulum
 import yaml
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+from airflow.providers.databricks.operators.databricks import DatabricksRunNowOperator
 from airflow.sdk import dag, task, task_group
 
 API_DELAY_DAYS = 4
@@ -53,8 +55,6 @@ def market_tracker():
 
     @task
     def fetch(ticker: str, logical_date=None) -> str:
-        import os
-
         from market_tracker.fetch import fetch_to_file
         from market_tracker.trading_calendar import target_day
 
@@ -75,6 +75,14 @@ def market_tracker():
         load_to_db(path=path, interval=INTERVAL, Session=Session)
         engine.dispose()
 
+    @task
+    def upload_to_databricks(path: str):
+        from databricks.sdk import WorkspaceClient
+
+        from market_tracker.databricks.upload import upload_file
+
+        upload_file(w=WorkspaceClient(), local_path=path, data_path=os.environ["DATA_DIR"])
+
     compute_daily_prices = SparkSubmitOperator(
         task_id="compute_daily_prices",
         application="/opt/airflow/src/market_tracker/spark/jobs/daily_prices.py",
@@ -82,16 +90,21 @@ def market_tracker():
         packages="org.postgresql:postgresql:42.7.13",
     )
 
+    databricks_medallion = DatabricksRunNowOperator(
+        task_id="databricks_medallion", job_id=os.environ["DATABRICKS_MEDALLION_JOB_ID"]
+    )
+
     @task_group
     def process_ticker(ticker: str):
         path = fetch(ticker)
         load(path)
+        upload_to_databricks(path)
 
     (
         check_trading_day()
         >> init_schema()
         >> process_ticker.expand(ticker=TICKERS)
-        >> compute_daily_prices
+        >> [compute_daily_prices, databricks_medallion]
     )
 
 

@@ -5,10 +5,26 @@ from databricks.sdk import WorkspaceClient
 
 logger = logging.getLogger(__name__)
 
+DATABRICKS_BASEPATH = "/Volumes/workspace/market_bronze/raw"
 
-def upload_to_bronze(
-    databricks_basepath: str = "/Volumes/workspace/market_bronze/raw",
+
+def upload_file(
+    w: WorkspaceClient,
+    local_path: str,
+    data_path: str,
+    databricks_basepath: str = DATABRICKS_BASEPATH,
+):
+    local_path = Path(local_path)
+    root = Path(f"{data_path}/raw")
+    file_path = f"{databricks_basepath}/{local_path.relative_to(root).as_posix()}"
+    with open(local_path, "rb") as f:
+        w.files.upload(file_path=file_path, contents=f, overwrite=True)
+        logger.info(f"SENT {file_path}")
+
+
+def backfill_bronze(
     data_path: str = "data",
+    databricks_basepath: str = DATABRICKS_BASEPATH,
     date: str = "*",
     interval: str = "*",
     ticker: str = "*",
@@ -22,10 +38,7 @@ def upload_to_bronze(
         logger.warning("no local files detected to upload")
 
     for p in files:
-        file_path = f"{databricks_basepath}/{p.relative_to(root).as_posix()}"
-        with open(p, "rb") as f:
-            w.files.upload(file_path=file_path, contents=f, overwrite=True)
-            logger.info(f"SENT {file_path}")
+        upload_file(w, p, data_path, databricks_basepath)
 
 
 if __name__ == "__main__":
@@ -33,4 +46,4 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    upload_to_bronze()
+    backfill_bronze()

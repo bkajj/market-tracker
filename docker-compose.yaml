@@ -76,6 +76,11 @@ x-airflow-common:
 
     # Spark
     AIRFLOW_CONN_SPARK_DEFAULT: spark://spark-master:7077
+    AIRFLOW_CONN_DATABRICKS_DEFAULT: >-
+      {"conn_type": "databricks",
+       "host": "${DATABRICKS_HOST}",
+       "password": "${DATABRICKS_TOKEN}"}
+
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
