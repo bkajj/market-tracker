@@ -9,3 +9,5 @@ pyspark==4.2.0
 apache-airflow-providers-apache-spark
 apache-airflow-providers-databricks
 databricks-sdk
+azure-identity
+azure-storage-file-datalake
